@@ -1,0 +1,27 @@
+{
+  "service_name": "My Awesome Service",
+  "service_slug": "{{ cookiecutter.service_name|lower|replace(' ', '-')|replace('_', '-') }}",
+  "service_description": "A brief description of {{ cookiecutter.service_name }}",
+  "lang": [
+    "node",
+    "python", 
+    "go"
+  ],
+  "cloud": [
+    "aws",
+    "gcp",
+    "azure",
+    "local"
+  ],
+  "author_name": "Equilibretech",
+  "author_email": "tech@equilibretech.com",
+  "github_org": "Equilibretech",
+  "version": "1.0.0",
+  "_copy_without_render": [
+    "*.yml",
+    "*.yaml"
+  ],
+  "_extensions": [
+    "cookiecutter.extensions.SlugifyExtension"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "{{ cookiecutter.service_slug }}",
+  "version": "1.0.0",
+  "description": "{{ cookiecutter.service_name }}",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/ tests/",
+    "lint:fix": "eslint src/ tests/ --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.3"
+  },
+  "dependencies": {
+    "TODO": "Ajouter vos dépendances projet ici"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

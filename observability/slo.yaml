@@ -1,0 +1,97 @@
+# Service Level Objectives (SLO) for {{ cookiecutter.service_name }}
+# TODO: Adapter les valeurs selon vos besoins métier
+
+apiVersion: sloth.slok.dev/v1
+kind: PrometheusServiceLevel
+metadata:
+  name: {{ cookiecutter.service_slug }}-slo
+  namespace: {{ cookiecutter.service_slug }}
+spec:
+  service: {{ cookiecutter.service_slug }}
+  labels:
+    team: equilibretech
+    tier: production
+  
+  slos:
+    # SLO 1: Availability - 99.9% uptime
+    - name: "availability"
+      objective: 99.9
+      description: "Service should be available 99.9% of the time"
+      sli:
+        events:
+          error_query: sum(rate(http_requests_total{service="{{ cookiecutter.service_slug }}",status=~"5.."}[5m]))
+          total_query: sum(rate(http_requests_total{service="{{ cookiecutter.service_slug }}"}[5m]))
+      alerting:
+        name: {{ cookiecutter.service_slug }}Availability
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ cookiecutter.service_name }} availability is below SLO"
+          description: "The availability for {{ cookiecutter.service_name }} has been below 99.9% for more than 5 minutes."
+
+    # SLO 2: Latency - 95% of requests under 500ms
+    - name: "latency"
+      objective: 95.0
+      description: "95% of requests should complete within 500ms"
+      sli:
+        events:
+          error_query: sum(rate(http_request_duration_seconds_bucket{service="{{ cookiecutter.service_slug }}",le="0.5"}[5m]))
+          total_query: sum(rate(http_request_duration_seconds_count{service="{{ cookiecutter.service_slug }}"}[5m]))
+      alerting:
+        name: {{ cookiecutter.service_slug }}Latency
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ cookiecutter.service_name }} latency is above SLO"
+          description: "Less than 95% of requests are completing within 500ms for {{ cookiecutter.service_name }}."
+
+    # SLO 3: Throughput - Handle expected load
+    - name: "throughput"
+      objective: 99.0
+      description: "Service should handle expected throughput 99% of the time"
+      sli:
+        events:
+          error_query: sum(rate(http_requests_total{service="{{ cookiecutter.service_slug }}",status="429"}[5m]))
+          total_query: sum(rate(http_requests_total{service="{{ cookiecutter.service_slug }}"}[5m]))
+      alerting:
+        name: {{ cookiecutter.service_slug }}Throughput
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ cookiecutter.service_name }} is rejecting requests due to high load"
+          description: "{{ cookiecutter.service_name }} is returning 429 status codes indicating it cannot handle the current load."
+
+# Example Error Budget alerts
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ cookiecutter.service_slug }}-error-budget
+  namespace: {{ cookiecutter.service_slug }}
+spec:
+  groups:
+    - name: {{ cookiecutter.service_slug }}.error-budget
+      rules:
+        - alert: {{ cookiecutter.service_slug }}ErrorBudgetBurn
+          expr: |
+            (
+              slo:sli_error:ratio_rate5m{sloth_service="{{ cookiecutter.service_slug }}"} > (14.4 * 0.001)
+              and
+              slo:sli_error:ratio_rate1h{sloth_service="{{ cookiecutter.service_slug }}"} > (14.4 * 0.001)
+            )
+            or
+            (
+              slo:sli_error:ratio_rate30m{sloth_service="{{ cookiecutter.service_slug }}"} > (6 * 0.001)
+              and
+              slo:sli_error:ratio_rate6h{sloth_service="{{ cookiecutter.service_slug }}"} > (6 * 0.001)
+            )
+          labels:
+            severity: critical
+            sloth_service: {{ cookiecutter.service_slug }}
+          annotations:
+            summary: "High error budget burn for {{ cookiecutter.service_name }}"
+            description: "The error budget burn rate for {{ cookiecutter.service_name }} is too high."
+
+# TODO: Ajuster les seuils selon votre contexte métier
+# TODO: Ajouter des SLO spécifiques à votre domaine (ex: business metrics)
+# TODO: Intégrer avec vos outils d'alerting (PagerDuty, Slack, etc.)

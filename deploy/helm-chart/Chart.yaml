@@ -1,0 +1,22 @@
+apiVersion: v2
+name: {{ cookiecutter.service_slug }}
+description: {{ cookiecutter.service_name }}
+type: application
+
+# Chart version - increment for each release
+version: 0.1.0
+
+# Application version - matches Docker image tag
+appVersion: "1.0.0"
+
+keywords:
+  - {{ cookiecutter.service_slug }}
+  - equilibretech
+
+home: https://github.com/Equilibretech/projects-{{ cookiecutter.service_slug }}
+
+maintainers:
+  - name: Equilibretech
+    email: tech@equilibretech.com
+
+dependencies: []

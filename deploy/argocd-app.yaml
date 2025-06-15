@@ -1,0 +1,156 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ cookiecutter.service_slug }}
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/Equilibretech/projects-{{ cookiecutter.service_slug }}
+    targetRevision: main
+    path: deploy/helm-chart
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: image.tag
+          value: latest
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ cookiecutter.service_slug }}
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  revisionHistoryLimit: 10
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ cookiecutter.service_slug }}-project
+  namespace: argocd
+spec:
+  description: Project for {{ cookiecutter.service_name }}
+  
+  sourceRepos:
+    - 'https://github.com/Equilibretech/projects-{{ cookiecutter.service_slug }}'
+  
+  destinations:
+    - namespace: {{ cookiecutter.service_slug }}
+      server: https://kubernetes.default.svc
+    - namespace: {{ cookiecutter.service_slug }}-*
+      server: https://kubernetes.default.svc
+  
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+  
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  
+  roles:
+    - name: admin
+      policies:
+        - p, proj:{{ cookiecutter.service_slug }}-project:admin, applications, *, {{ cookiecutter.service_slug }}-project/*, allow
+        - p, proj:{{ cookiecutter.service_slug }}-project:admin, repositories, *, *, allow
+      groups:
+        - equilibretech:developers
+    
+    - name: readonly
+      policies:
+        - p, proj:{{ cookiecutter.service_slug }}-project:readonly, applications, get, {{ cookiecutter.service_slug }}-project/*, allow
+      groups:
+        - equilibretech:readonly
+
+---
+# Rollout strategy for Canary deployment with Argo Rollouts
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ cookiecutter.service_slug }}
+  namespace: {{ cookiecutter.service_slug }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    canary:
+      canaryService: {{ cookiecutter.service_slug }}-canary
+      stableService: {{ cookiecutter.service_slug }}
+      trafficRouting:
+        nginx:
+          stableIngress: {{ cookiecutter.service_slug }}-ingress
+      steps:
+        - setWeight: 10
+        - pause: {duration: 1m}
+        - setWeight: 20
+        - pause: {duration: 2m}
+        - setWeight: 40
+        - pause: {duration: 2m}
+        - setWeight: 60
+        - pause: {duration: 2m}
+        - setWeight: 80
+        - pause: {duration: 2m}
+      analysis:
+        templates:
+          - templateName: success-rate
+        startingStep: 2
+        args:
+          - name: service-name
+            value: {{ cookiecutter.service_slug }}
+  selector:
+    matchLabels:
+      app: {{ cookiecutter.service_slug }}
+  template:
+    metadata:
+      labels:
+        app: {{ cookiecutter.service_slug }}
+    spec:
+      containers:
+        - name: {{ cookiecutter.service_slug }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+
+---
+# Analysis template for canary deployment
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate
+  namespace: {{ cookiecutter.service_slug }}
+spec:
+  args:
+    - name: service-name
+  metrics:
+    - name: success-rate
+      interval: 1m
+      successCondition: result[0] >= 0.95
+      failureLimit: 3
+      provider:
+        prometheus:
+          address: http://prometheus-server.monitoring.svc.cluster.local:80
+          query: |
+            sum(rate(
+              http_requests_total{service="{{ "{{" }}args.service-name{{ "}}" }}",status!~"5.."}[5m]
+            )) / 
+            sum(rate(
+              http_requests_total{service="{{ "{{" }}args.service-name{{ "}}" }}"}[5m]
+            ))

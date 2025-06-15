@@ -1,0 +1,5 @@
+# Production dependencies
+# TODO: Ajouter vos dépendances projet ici
+
+# Development dependencies (installées via pip install -e ".[dev]")
+# Voir pyproject.toml pour la liste complète
