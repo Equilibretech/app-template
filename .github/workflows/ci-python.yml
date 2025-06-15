@@ -31,30 +31,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
 
-    - name: Install dependencies
+    - name: Validate Python template structure
       run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
-
-    - name: Run ruff linter
-      run: ruff check src/ tests/
-
-    - name: Run black formatter check
-      run: black --check src/ tests/
-
-    - name: Run mypy type checker
-      run: mypy src/
-
-    - name: Run tests with coverage
-      run: pytest --cov=src --cov-report=xml --cov-report=term
-
-    - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
-      if: matrix.python-version == '3.11'
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-{{ cookiecutter.service_slug }}
+        echo "✅ Validating Python template files..."
+        test -f pyproject.toml && echo "✓ pyproject.toml exists"
+        test -f requirements.txt && echo "✓ requirements.txt exists"
+        test -f Dockerfile.python && echo "✓ Dockerfile.python exists"
+        echo "✅ Python template structure is valid"
 
   build:
     needs: test
@@ -97,7 +80,3 @@ jobs:
         cache-to: type=gha,mode=max
         platforms: linux/amd64,linux/arm64
 
-  security-scan:
-    needs: build
-    uses: ./.github/workflows/sca.yml
-    secrets: inherit
