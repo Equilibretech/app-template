@@ -1,115 +1,235 @@
-# {{ cookiecutter.service_name }}
+# Equilibretech App Template
 
-> TODO: Décrire l'application, son objectif principal, et sa valeur métier
+> Production-ready template for creating new application projects with best practices built-in
 
-## 🚀 Quick Start
+## 🎯 What is this?
 
+This is a comprehensive application template that provides:
+- **Multi-language support**: Node.js, Python, Go
+- **Multi-cloud infrastructure**: AWS, GCP, Azure, Local development
+- **Complete CI/CD pipeline**: GitHub Actions with security scanning
+- **Kubernetes deployment**: Helm charts + ArgoCD
+- **Observability stack**: OpenTelemetry, Prometheus, Grafana, Jaeger
+- **Security by default**: OWASP scanning, container security, accessibility guidelines
+
+## 🚀 How to Use This Template
+
+### Method 1: GitHub Template (Recommended)
+1. Click **"Use this template"** button above
+2. Create your new repository as `Equilibretech/projects-<your-service-name>`
+3. Clone your new repository
+4. Run the initialization script:
+   ```bash
+   ./init.sh
+   ```
+
+### Method 2: Cookiecutter
 ```bash
-# Clone the repository
-git clone https://github.com/Equilibretech/projects-{{ cookiecutter.service_slug }}.git
-cd projects-{{ cookiecutter.service_slug }}
+# If you have cookiecutter installed
+pip install cookiecutter
+cookiecutter gh:Equilibretech/app-template
+```
 
-# Install dependencies (based on chosen language)
-# Node.js:
-npm install
+### Method 3: Manual Clone
+```bash
+git clone https://github.com/Equilibretech/app-template.git your-project-name
+cd your-project-name
+./init.sh
+```
 
-# Python:
-pip install -e ".[dev]"
+## ⚙️ Initialization Process
 
-# Go:
-go mod download
+The `init.sh` script will:
+1. **Ask 3 questions**:
+   - Service name (e.g., "My Awesome Service")
+   - Programming language (node/python/go)
+   - Cloud provider (aws/gcp/azure/local)
 
-# Run the application
-npm start  # or python -m src.main # or go run src/main.go
+2. **Auto-configure your project**:
+   - Replace template variables throughout all files
+   - Remove unused language-specific files
+   - Configure infrastructure for your chosen cloud
+   - Set up git repository with initial commit
+
+3. **Clean up**:
+   - Remove initialization files
+   - Display next steps
+
+## 📁 What You Get
+
+After initialization, your project will have:
+```
+your-project/
+├── src/                    # Your application code
+├── tests/                  # Test files
+├── Dockerfile             # Optimized for your language
+├── .github/workflows/     # CI/CD pipelines
+├── deploy/                # Kubernetes + Helm configuration
+├── infra/                 # Terraform infrastructure
+├── observability/         # Monitoring stack
+├── docs/                  # Project documentation
+└── README.md             # Your project's README
 ```
 
 ## 📋 Prerequisites
 
-- TODO: Lister les prérequis techniques (versions Node/Python/Go, bases de données, services externes)
-- Docker & Docker Compose
-- Kubernetes cluster (for deployment)
-- Terraform (for infrastructure)
+- **Docker & Docker Compose** (for local development and observability stack)
+- **Git** (for version control)
+- **Your chosen language runtime**:
+  - Node.js 18+ (if using Node.js)
+  - Python 3.10+ (if using Python)
+  - Go 1.20+ (if using Go)
 
-## 🏗️ Architecture
+### For Infrastructure (Optional):
+- **Terraform 1.0+** (for cloud provisioning)
+- **kubectl** (for Kubernetes management)
+- **Helm 3+** (for application deployment)
+- **Cloud CLI** (aws-cli, gcloud, or az-cli depending on your choice)
 
-TODO: Décrire l'architecture technique et les choix de design
+## 🏗️ Template Architecture
 
-## 🔧 Development
+This template follows **industry best practices**:
 
-### Running locally
+### 🔧 **Development**
+- **Multi-language support** with optimized configurations
+- **Hot reload** and development tools for each language
+- **Linting and formatting** rules pre-configured
+- **Testing frameworks** set up with coverage reporting
+
+### 🚀 **CI/CD Pipeline**
+- **GitHub Actions** workflows for each language
+- **Multi-platform Docker builds** (linux/amd64, linux/arm64)
+- **Security scanning** with OWASP Dependency-Check and Trivy
+- **Automated testing** and code quality checks
+
+### ☁️ **Infrastructure**
+- **Terraform modules** for AWS, GCP, and Azure
+- **Kubernetes manifests** with Helm charts
+- **ArgoCD configuration** for GitOps deployment
+- **Auto-scaling** and **load balancing** configured
+
+### 📊 **Observability**
+- **OpenTelemetry** for traces, metrics, and logs
+- **Prometheus** for metrics collection
+- **Grafana** for visualization and dashboards
+- **Jaeger** for distributed tracing
+- **SLO monitoring** with error budget tracking
+
+## 🔧 Development Workflow
+
+### 1. **After Template Initialization**
 ```bash
-# Development mode with hot reload
-npm run dev  # or python -m src.main --reload # or go run -race src/main.go
+# Your project is ready! Start developing:
+
+# Node.js projects:
+npm install && npm run dev
+
+# Python projects:
+pip install -e ".[dev]" && python -m src.main
+
+# Go projects:
+go mod tidy && go run src/main.go
 ```
 
-### Testing
+### 2. **Local Observability Stack**
 ```bash
-# Run tests
-npm test        # Node.js
-pytest          # Python
-go test ./...   # Go
+# Start monitoring tools
+docker-compose -f observability/otel-compose.yml up -d
 
-# With coverage
-npm run test:coverage
-pytest --cov=src
-go test -cover ./...
+# Access dashboards:
+# - Prometheus: http://localhost:9090
+# - Grafana: http://localhost:3000 (admin/admin)
+# - Jaeger: http://localhost:16686
 ```
 
-### Linting
+### 3. **Testing & Quality**
 ```bash
-# Check code style
-npm run lint        # Node.js
-ruff check src/     # Python
-golangci-lint run   # Go
+# Run tests (language-specific)
+npm test              # Node.js
+pytest                # Python  
+go test ./...         # Go
+
+# Check code quality
+npm run lint          # Node.js
+ruff check src/       # Python
+golangci-lint run     # Go
 ```
 
 ## 🚀 Deployment
 
-### Local Development Stack
+### Infrastructure Setup
 ```bash
-# Start observability stack
-docker-compose -f observability/otel-compose.yml up -d
-
-# Deploy to local Kubernetes
-helm install {{ cookiecutter.service_slug }} deploy/helm-chart/
+cd infra/
+terraform init
+terraform plan
+terraform apply
 ```
+*See [infra/README.md](infra/README.md) for detailed infrastructure documentation.*
 
-### Production Deployment
-1. Infrastructure provisioning: `cd infra && terraform apply`
-2. Application deployment via ArgoCD: `kubectl apply -f deploy/argocd-app.yaml`
+### Application Deployment
+```bash
+# Local Kubernetes
+helm install myapp deploy/helm-chart/
+
+# Production via ArgoCD
+kubectl apply -f deploy/argocd-app.yaml
+```
 
 ## 📊 Monitoring & Observability
 
-- **Metrics**: Prometheus at http://localhost:9090
-- **Traces**: Jaeger at http://localhost:16686  
-- **Logs**: Grafana at http://localhost:3000
-- **SLOs**: See `observability/slo.yaml`
+Built-in observability stack with industry-standard tools:
+- **📈 Metrics**: Prometheus scraping and alerting
+- **🔍 Traces**: Jaeger for distributed tracing  
+- **📝 Logs**: Centralized logging with structured formats
+- **📋 SLOs**: Service Level Objectives with error budget tracking
+- **🚨 Alerting**: Configurable alerts for key metrics
 
-## 🔒 Security
+## 🔒 Security Features
 
-- Security scanning automated via GitHub Actions
-- Dependency vulnerability checks with OWASP Dependency-Check
-- Container scanning with Trivy
+Security is built-in from day one:
+- **🛡️ Automated scanning**: OWASP Dependency-Check and Trivy in CI/CD
+- **🔐 Container security**: Non-root containers, read-only filesystems
+- **📊 Secret scanning**: GitHub secret detection enabled
+- **♿ Accessibility**: WCAG 2.2 AA compliance guidelines
+- **🔍 Code analysis**: CodeQL security analysis
 
 ## 📚 Documentation
 
-- [Design Document](docs/design_doc.md)
-- [Architecture Decision Records](docs/adr/)
-- [Accessibility Guidelines](a11y.md)
+- **[Infrastructure Guide](infra/README.md)** - Terraform setup and cloud configuration
+- **[Design Document](docs/design_doc.md)** - Technical architecture and decisions  
+- **[Architecture Decision Records](docs/adr/)** - Historical decision tracking
+- **[Accessibility Guidelines](a11y.md)** - WCAG compliance and testing
 
-## 🤝 Contributing
+## 🛠️ Template Maintenance
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Make your changes and add tests
-4. Run linting and tests: `npm run lint && npm test`
-5. Commit your changes: `git commit -m 'Add some feature'`
-6. Push to the branch: `git push origin feature/your-feature`
-7. Submit a pull request
+### For Template Contributors
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for detailed information on:
+- Template architecture and design decisions
+- How to test template changes
+- Development workflow and best practices
+
+### Quick Template Test
+```bash
+# Test template generation
+./init.sh
+
+# Test with different configurations:
+# - Languages: node/python/go  
+# - Clouds: aws/gcp/azure/local
+```
+
+## 🤝 Using This Template
+
+**For end users**: Follow the [How to Use This Template](#-how-to-use-this-template) section above.
+
+**For template developers**: See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 ## 📄 License
 
-TODO: Spécifier la licence du projet
+This template is provided under the MIT License. 
 
+Generated projects inherit this license by default, but you can change it in your specific project.
 
-touch
+---
+
+🎯 **Ready to build something awesome?** Click "Use this template" to get started!
