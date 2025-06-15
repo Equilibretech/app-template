@@ -1,0 +1,76 @@
+name: ❓ Question
+description: Ask a question about using this template
+title: "[QUESTION] "
+labels: ["question", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your question! We're here to help. 💡
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: Please be as specific as possible...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What is your question about?
+      options:
+        - Getting Started
+        - Template Initialization
+        - Language Configuration (Node.js/Python/Go)
+        - Infrastructure/Cloud Setup
+        - CI/CD Pipeline
+        - Kubernetes Deployment
+        - Monitoring & Observability
+        - Security Configuration
+        - Customization
+        - Troubleshooting
+        - Best Practices
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What have you tried so far? Any error messages?
+      placeholder: |
+        - What steps did you take?
+        - What error messages did you see?
+        - What documentation did you check?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: experience
+    attributes:
+      label: Experience Level
+      description: How familiar are you with the technologies involved?
+      options:
+        - Beginner
+        - Intermediate
+        - Advanced
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you've done the following
+      options:
+        - label: I've searched existing issues and discussions
+          required: true
+        - label: I've read the README and documentation
+          required: true
+        - label: I agree to follow this project's Code of Conduct
+          required: true

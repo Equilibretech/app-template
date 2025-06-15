@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/Equilibretech/app-template/blob/main/README.md
+    about: Read our comprehensive documentation and guides
+  - name: 💬 Discussions
+    url: https://github.com/Equilibretech/app-template/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🔒 Security Issues
+    url: https://github.com/Equilibretech/app-template/security/policy
+    about: Report security vulnerabilities privately
