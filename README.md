@@ -110,3 +110,4 @@ helm install {{ cookiecutter.service_slug }} deploy/helm-chart/
 ## 📄 License
 
 TODO: Spécifier la licence du projet
+
